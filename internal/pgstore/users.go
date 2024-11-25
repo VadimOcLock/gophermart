@@ -2,6 +2,7 @@ package pgstore
 
 import (
 	"context"
+	"github.com/VadimOcLock/gophermart/internal/entity"
 
 	"github.com/VadimOcLock/gophermart/internal/service/authservice"
 )
@@ -30,4 +31,25 @@ func (q *Queries) UserExistsByLogin(ctx context.Context, login string) (bool, er
 	err := row.Scan(&exists)
 
 	return exists, err
+}
+
+const findUserByLogin = `
+select id, login, password_hash, created_at 
+FROM users
+WHERE login = $1
+limit 1
+;
+`
+
+func (q *Queries) FindUserByLogin(ctx context.Context, login string) (entity.User, error) {
+	row := q.db.QueryRow(ctx, findUserByLogin, login)
+	var user entity.User
+	err := row.Scan(
+		&user.ID,
+		&user.Login,
+		&user.PasswordHash,
+		&user.CreatedAt,
+	)
+
+	return user, err
 }

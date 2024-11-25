@@ -2,6 +2,7 @@ package authusecase
 
 import (
 	"context"
+	"golang.org/x/crypto/bcrypt"
 	"strconv"
 	"time"
 
@@ -51,6 +52,29 @@ func (uc AuthUseCase) Register(ctx context.Context, dto entity.UserDTO) (string,
 		return "", err
 	}
 	if _, err = uc.AuthService.CreateSession(ctx, userID, token, expiresAt); err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (uc AuthUseCase) Login(ctx context.Context, dto entity.UserDTO) (string, error) {
+	if err := dto.Validate(); err != nil {
+		return "", err
+	}
+	user, err := uc.AuthService.FindUserByLogin(ctx, dto.Login)
+	if err != nil {
+		return "", err
+	}
+	if err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(dto.Password)); err != nil {
+		return "", errorz.ErrInvalidLoginPasswordPair
+	}
+	expiresAt := time.Now().Add(uc.JWTConfig.TokenDuration)
+	token, err := jwt.Generate(dto.Login, expiresAt, uc.JWTConfig.SecretKey)
+	if err != nil {
+		return "", err
+	}
+	if _, err = uc.AuthService.CreateSession(ctx, user.ID, token, expiresAt); err != nil {
 		return "", err
 	}
 

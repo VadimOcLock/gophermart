@@ -2,6 +2,10 @@ package authservice
 
 import (
 	"context"
+	"errors"
+	"github.com/VadimOcLock/gophermart/internal/entity"
+	"github.com/VadimOcLock/gophermart/internal/errorz"
+	"github.com/jackc/pgx/v5"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -55,4 +59,17 @@ func (s AuthService) hashPassword(password string) (string, error) {
 	}
 
 	return string(hash), nil
+}
+
+func (s AuthService) FindUserByLogin(ctx context.Context, login string) (entity.User, error) {
+	user, err := s.UserStore.FindUserByLogin(ctx, login)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return entity.User{}, errorz.ErrInvalidLoginPasswordPair
+		}
+
+		return entity.User{}, err
+	}
+
+	return user, nil
 }
