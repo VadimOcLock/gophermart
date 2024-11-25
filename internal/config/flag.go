@@ -52,7 +52,7 @@ func ParseFlags(cfg WebServer) (WebServer, error) {
 	flag.StringVar(&flagWebSrvAddr, "a", defaultWebSrvAddr, "server addr host and port")
 	flag.StringVar(&flagAccrualSrvAddr, "r", defaultAccrualSrvAddr, "accrual server addr host and port")
 	flag.StringVar(&flagDatabaseDSN, "d", defaultDatabaseDSN, "database dsn")
-	flag.StringVar(&flagSecretKey, "d", defaultSecretKey, "database dsn")
+	flag.StringVar(&flagSecretKey, "k", defaultSecretKey, "database dsn")
 
 	flag.Parse()
 
@@ -71,7 +71,7 @@ func ParseFlags(cfg WebServer) (WebServer, error) {
 	if envVal := os.Getenv("ACCRUAL_SYSTEM_ADDRESS"); envVal == "" {
 		cfg.AccrualConfig.SrvAddr = accrualSrvAddr.String()
 	}
-	if envVal := os.Getenv("DATABASE_DSN"); envVal == "" {
+	if envVal := os.Getenv("DATABASE_URI"); envVal == "" {
 		cfg.DatabaseConfig.DSN = flagDatabaseDSN
 	}
 	if envVal := os.Getenv("SECRET_KEY"); envVal == "" {
