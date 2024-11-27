@@ -6,10 +6,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func Generate(subject string, expiresIn time.Time, secretKey string) (string, error) {
+func Generate(userID uint64, expiresIn time.Time, secretKey string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": subject,
-		"exp": expiresIn.Unix(),
+		"user_id": userID,
+		"exp":     expiresIn.Unix(),
 	})
 
 	signedToken, err := token.SignedString([]byte(secretKey))

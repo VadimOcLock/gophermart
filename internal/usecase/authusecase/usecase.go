@@ -3,7 +3,6 @@ package authusecase
 import (
 	"context"
 	"golang.org/x/crypto/bcrypt"
-	"strconv"
 	"time"
 
 	"github.com/VadimOcLock/gophermart/internal/entity"
@@ -47,7 +46,7 @@ func (uc AuthUseCase) Register(ctx context.Context, dto entity.UserDTO) (string,
 		return "", err
 	}
 	expiresAt := time.Now().Add(uc.JWTConfig.TokenDuration)
-	token, err := jwt.Generate(strconv.FormatUint(userID, 10), expiresAt, uc.JWTConfig.SecretKey)
+	token, err := jwt.Generate(userID, expiresAt, uc.JWTConfig.SecretKey)
 	if err != nil {
 		return "", err
 	}
@@ -70,7 +69,7 @@ func (uc AuthUseCase) Login(ctx context.Context, dto entity.UserDTO) (string, er
 		return "", errorz.ErrInvalidLoginPasswordPair
 	}
 	expiresAt := time.Now().Add(uc.JWTConfig.TokenDuration)
-	token, err := jwt.Generate(dto.Login, expiresAt, uc.JWTConfig.SecretKey)
+	token, err := jwt.Generate(user.ID, expiresAt, uc.JWTConfig.SecretKey)
 	if err != nil {
 		return "", err
 	}

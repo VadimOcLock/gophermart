@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/VadimOcLock/gophermart/internal/middleware"
 	"net/http"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/VadimOcLock/gophermart/internal/service/authservice"
 	"github.com/VadimOcLock/gophermart/internal/usecase/authusecase"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -28,12 +29,21 @@ func New(pgClient *pgxpool.Pool, cfg config.WebServer) *http.Server {
 	authHandler := authhandler.New(authUseCase)
 	// Server.
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	r.Use(chimiddleware.Logger)
+	r.Use(chimiddleware.Recoverer)
 
+	// Auth.
+	r.Post("/api/user/register", authHandler.Register)
+	r.Post("/api/user/login", authHandler.Login)
+
+	// Protected.
 	r.Route("/api/user", func(r chi.Router) {
-		r.Post("/register", authHandler.Register)
-		r.Post("/login", authHandler.Login)
+		r.Use(middleware.JWTAuthMiddleware(cfg.JWTConfig.SecretKey))
+		r.Get("/protected", func(writer http.ResponseWriter, request *http.Request) {
+			writer.WriteHeader(http.StatusOK)
+			writer.Write([]byte("Authorized endpoint"))
+		})
+
 	})
 
 	return &http.Server{
