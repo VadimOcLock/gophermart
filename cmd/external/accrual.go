@@ -10,24 +10,30 @@ import (
 )
 
 const defaultClientTimeout = 5 * time.Second
+const HTTPProtocol = "http://"
 
 type AccrualClient struct {
 	BaseURL string
 	Client  *resty.Client
 }
 
-func NewAccrualClient(baseURL string) *AccrualClient {
+func NewAccrualClient(addr string) *AccrualClient {
 	client := resty.New().
-		SetBaseURL(baseURL).
+		SetBaseURL(HTTPProtocol + addr).
 		SetTimeout(defaultClientTimeout).
 		SetRetryCount(3).
 		SetRetryWaitTime(2 * time.Second).
 		AddRetryCondition(func(r *resty.Response, err error) bool {
-			return r.StatusCode() == http.StatusTooManyRequests
+			if r.StatusCode() == http.StatusTooManyRequests ||
+				r.StatusCode() == http.StatusNoContent || err != nil {
+				return true
+			}
+
+			return false
 		})
 
 	return &AccrualClient{
-		BaseURL: baseURL,
+		BaseURL: addr,
 		Client:  client,
 	}
 }
@@ -48,8 +54,16 @@ type AccrualResponse struct {
 }
 
 func (c AccrualClient) GetOrderAccrual(ctx context.Context, orderNumber string) (*AccrualResponse, error) {
+	retryConditionFn := func(r *resty.Response, err error) bool {
+		var orderStatus string
+		if r.Result().(*AccrualResponse) != nil {
+			orderStatus = r.Result().(*AccrualResponse).Status
+		}
+		return r.StatusCode() == http.StatusNoContent || orderStatus == string(OrderStatusRegistered)
+	}
 	resp, err := c.Client.R().
 		SetContext(ctx).
+		AddRetryCondition(retryConditionFn).
 		SetPathParam("orderNumber", orderNumber).
 		SetResult(&AccrualResponse{}).
 		Get("/api/orders/{orderNumber}")

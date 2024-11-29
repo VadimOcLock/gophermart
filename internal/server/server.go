@@ -1,7 +1,11 @@
 package server
 
 import (
+	"github.com/VadimOcLock/gophermart/cmd/external"
+	"github.com/VadimOcLock/gophermart/internal/handler/orderhandler"
 	"github.com/VadimOcLock/gophermart/internal/middleware"
+	"github.com/VadimOcLock/gophermart/internal/service/orderservice"
+	"github.com/VadimOcLock/gophermart/internal/usecase/orderusecase"
 	"net/http"
 	"time"
 
@@ -16,17 +20,22 @@ import (
 )
 
 func New(pgClient *pgxpool.Pool, cfg config.WebServer) *http.Server {
+	// Accrual client.
+	accrualClient := external.NewAccrualClient(cfg.AccrualConfig.SrvAddr)
 	// Store.
 	store := pgstore.New(pgClient)
 	// Services.
 	authService := authservice.NewAuthService(store)
+	orderService := orderservice.NewOrderService(store, accrualClient)
 	// UseCases.
 	authUseCase := authusecase.NewAuthUseCase(authService, authusecase.JWTConfig{
 		SecretKey:     cfg.JWTConfig.SecretKey,
 		TokenDuration: cfg.JWTConfig.TokenExpiration,
 	})
+	orderUseCase := orderusecase.NewOrderUseCase(orderService)
 	// Handler.
 	authHandler := authhandler.New(authUseCase)
+	orderHandler := orderhandler.New(orderUseCase)
 	// Server.
 	r := chi.NewRouter()
 	r.Use(chimiddleware.Logger)
@@ -43,7 +52,7 @@ func New(pgClient *pgxpool.Pool, cfg config.WebServer) *http.Server {
 			writer.WriteHeader(http.StatusOK)
 			writer.Write([]byte("Authorized endpoint"))
 		})
-
+		r.Post("/orders", orderHandler.UploadOrder)
 	})
 
 	return &http.Server{

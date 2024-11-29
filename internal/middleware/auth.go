@@ -42,13 +42,6 @@ func JWTAuthMiddleware(jwtSecretKey string) func(next http.Handler) http.Handler
 			}
 
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-				userID, ok := claims[UserIDKey].(uint64)
-				if !ok {
-					http.Error(res, "missing subject claim", http.StatusUnauthorized)
-
-					return
-				}
-
 				exp, ok := claims["exp"].(float64)
 				if !ok {
 					http.Error(res, "missing expiry claim", http.StatusUnauthorized)
@@ -63,7 +56,14 @@ func JWTAuthMiddleware(jwtSecretKey string) func(next http.Handler) http.Handler
 					return
 				}
 
-				ctx := context.WithValue(req.Context(), UserIDKey, userID)
+				userID, ok := claims[UserIDKey].(float64)
+				if !ok {
+					http.Error(res, "missing user id claim", http.StatusUnauthorized)
+
+					return
+				}
+
+				ctx := context.WithValue(req.Context(), UserIDKey, uint64(userID))
 				next.ServeHTTP(res, req.WithContext(ctx))
 			} else {
 				http.Error(res, "unauthorized access", http.StatusUnauthorized)

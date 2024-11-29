@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/VadimOcLock/gophermart/internal/errorz"
 	"github.com/VadimOcLock/gophermart/internal/service/orderservice"
-	"unicode"
 )
 
 type OrderUseCase struct {
@@ -34,11 +33,12 @@ func IsValidOrderNumber(orderNumber string) bool {
 	var double bool
 
 	for i := len(orderNumber) - 1; i >= 0; i-- {
-		r := rune(orderNumber[i])
-		if unicode.IsDigit(r) {
+		digit := orderNumber[i]
+		if digit < '0' || digit > '9' {
 			return false
 		}
-		n := int(r - '0')
+
+		n := int(digit - '0')
 		if double {
 			n *= 2
 			if n > 9 {

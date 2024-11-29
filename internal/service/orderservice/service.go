@@ -2,9 +2,11 @@ package orderservice
 
 import (
 	"context"
+	"errors"
 	"github.com/VadimOcLock/gophermart/cmd/external"
 	"github.com/VadimOcLock/gophermart/internal/entity"
 	"github.com/VadimOcLock/gophermart/internal/errorz"
+	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 )
 
@@ -22,7 +24,7 @@ func NewOrderService(orderStore OrderStore, accrualClient *external.AccrualClien
 
 func (s OrderService) UploadOrder(ctx context.Context, userID uint64, orderNumber string) (uint64, error) {
 	order, err := s.OrderStore.FindOrderByOrderNumber(ctx, orderNumber)
-	if err != nil {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return 0, err
 	}
 	if order != nil {
@@ -36,32 +38,39 @@ func (s OrderService) UploadOrder(ctx context.Context, userID uint64, orderNumbe
 	if err != nil {
 		return 0, err
 	}
-	go s.processOrder(ctx, orderNumber)
+	go s.processOrder(orderNumber)
 
 	return orderID, nil
 }
 
-func (s OrderService) processOrder(ctx context.Context, orderNumber string) {
-	// PROCESSING
-	if err := s.OrderStore.UpdateOrderStatus(ctx, orderNumber, entity.OrderStatusProcessing); err != nil {
-		log.Error().Err(err).Msg("failed to update order status")
-
-		return
-	}
+func (s OrderService) processOrder(orderNumber string) {
+	ctx := context.Background()
 	resp, err := s.AccrualClient.GetOrderAccrual(ctx, orderNumber)
-	if err != nil {
+	switch {
+	case err != nil:
 		log.Error().Msg(err.Error())
-
+	// 204.
+	case resp == nil:
+		if _, err = s.OrderStore.UpdateOrderStatus(ctx, orderNumber, entity.OrderStatusInvalid); err != nil {
+			log.Error().Err(err).Msg("failed to update order status with invalid status")
+		}
+	case resp.Status == string(external.OrderStatusProcessing):
+		if _, err = s.OrderStore.UpdateOrderStatus(ctx, orderNumber, entity.OrderStatusProcessing); err != nil {
+			log.Error().Err(err).Msg("failed to update order status with processing status")
+		}
+	case resp.Status == string(external.OrderStatusInvalid):
+		if _, err = s.OrderStore.UpdateOrderStatus(ctx, orderNumber, entity.OrderStatusInvalid); err != nil {
+			log.Error().Err(err).Msg("failed to update order status with invalid status")
+		}
+	case resp.Status == string(external.OrderStatusProcessed):
+		var accrual float64
+		if resp.Accrual != nil {
+			accrual = *resp.Accrual
+		}
+		if _, err = s.OrderStore.UpdateOrder(ctx, orderNumber, entity.OrderStatusProcessed, accrual); err != nil {
+			log.Error().Err(err).Msg("failed to update order with processed status")
+		}
+	case resp.Status == string(external.OrderStatusRegistered):
 		return
 	}
-	if resp == nil {
-		// No content.
-
-		return
-	}
-	switch resp.Status {
-	case string(entity.OrderStatusProcessed):
-		// todo
-	}
-
 }
