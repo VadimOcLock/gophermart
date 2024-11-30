@@ -72,6 +72,17 @@ func (h OrderHandler) UploadOrder(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// GetOrders godoc
+// @Summary Получение списка загруженных номеров заказов
+// @Description Хендлер доступен только авторизованному пользователю. Номера заказа в отсортированы по времени загрузки от самых новых к самым старым. Формат даты — RFC3339.
+// @Tags orders
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {array} entity.Order "Список загруженных номеров заказов"
+// @Success 204 "Нет данных для ответа"
+// @Failure 401 {string} string "Пользователь не авторизован"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /api/user/orders [get]
 func (h OrderHandler) GetOrders(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodGet {
 		res.WriteHeader(http.StatusMethodNotAllowed)

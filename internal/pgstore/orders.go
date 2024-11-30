@@ -80,7 +80,8 @@ func (q *Queries) UpdateOrder(ctx context.Context, orderNumber string, status en
 const findAllOrders = `
 select id, user_id, order_number, status, accrual, uploaded_at
 from orders
-where user_id = $1;
+where user_id = $1
+order by uploaded_at;
 `
 
 func (q *Queries) FindAllOrders(ctx context.Context, userID uint64) ([]entity.Order, error) {
