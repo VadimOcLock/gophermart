@@ -60,6 +60,54 @@ paths:
       summary: Аутентификация пользователя
       tags:
       - auth
+  /api/user/orders:
+    post:
+      consumes:
+      - text/plain
+      description: Хендлер доступен только аутентифицированным пользователям.
+      parameters:
+      - description: Номер заказа
+        in: body
+        name: order_number
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Номер заказа уже был загружен этим пользователем.
+          schema:
+            type: string
+        "202":
+          description: Новый номер заказа принят в обработку.
+          schema:
+            type: string
+        "400":
+          description: Неверный формат запроса.
+          schema:
+            type: string
+        "401":
+          description: Пользователь не аутентифицирован.
+          schema:
+            type: string
+        "409":
+          description: Номер заказа уже был загружен другим пользователем.
+          schema:
+            type: string
+        "422":
+          description: Неверный формат номера заказа.
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера.
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Загрузить номер заказа
+      tags:
+      - orders
   /api/user/register:
     post:
       consumes:

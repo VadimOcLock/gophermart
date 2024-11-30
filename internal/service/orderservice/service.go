@@ -3,7 +3,6 @@ package orderservice
 import (
 	"context"
 	"errors"
-
 	"github.com/VadimOcLock/gophermart/cmd/external"
 	"github.com/VadimOcLock/gophermart/internal/entity"
 	"github.com/VadimOcLock/gophermart/internal/errorz"
@@ -74,4 +73,8 @@ func (s OrderService) processOrder(orderNumber string) {
 	case resp.Status == string(external.OrderStatusRegistered):
 		return
 	}
+}
+
+func (s OrderService) FindAllOrders(ctx context.Context, userID uint64) ([]entity.Order, error) {
+	return s.OrderStore.FindAllOrders(ctx, userID)
 }

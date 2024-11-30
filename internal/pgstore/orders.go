@@ -2,6 +2,8 @@ package pgstore
 
 import (
 	"context"
+	"errors"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/VadimOcLock/gophermart/internal/entity"
 )
@@ -73,4 +75,32 @@ func (q *Queries) UpdateOrder(ctx context.Context, orderNumber string, status en
 	err := row.Scan(&updated)
 
 	return updated, err
+}
+
+const findAllOrders = `
+select id, user_id, order_number, status, accrual, uploaded_at
+from orders
+where user_id = $1;
+`
+
+func (q *Queries) FindAllOrders(ctx context.Context, userID uint64) ([]entity.Order, error) {
+	rows, err := q.db.Query(ctx, findAllOrders, userID)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return nil, err
+	}
+	defer rows.Close()
+	var orders []entity.Order
+	for rows.Next() {
+		var order entity.Order
+		err = rows.Scan(
+			&order.ID,
+			&order.UserID,
+			&order.OrderNumber,
+			&order.Status,
+			&order.Accrual,
+			&order.UploadedAt)
+		orders = append(orders, order)
+	}
+
+	return orders, nil
 }

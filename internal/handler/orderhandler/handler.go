@@ -21,6 +21,22 @@ func New(orderUseCase OrderUseCase) OrderHandler {
 	return OrderHandler{OrderUseCase: orderUseCase}
 }
 
+// UploadOrder godoc
+// @Summary Загрузить номер заказа
+// @Description Хендлер доступен только аутентифицированным пользователям.
+// @Tags orders
+// @Security BearerAuth
+// @Accept text/plain
+// @Produce json
+// @Param order_number body string true "Номер заказа"
+// @Success 200 {string} string "Номер заказа уже был загружен этим пользователем."
+// @Success 202 {string} string "Новый номер заказа принят в обработку."
+// @Failure 400 {string} string "Неверный формат запроса."
+// @Failure 401 {string} string "Пользователь не аутентифицирован."
+// @Failure 409 {string} string "Номер заказа уже был загружен другим пользователем."
+// @Failure 422 {string} string "Неверный формат номера заказа."
+// @Failure 500 {string} string "Внутренняя ошибка сервера."
+// @Router /api/user/orders [post]
 func (h OrderHandler) UploadOrder(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
@@ -51,6 +67,29 @@ func (h OrderHandler) UploadOrder(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, "User already uploaded by another user", http.StatusConflict)
 	case errors.Is(err, errorz.ErrInvalidOrderNumberFormat):
 		http.Error(res, "Invalid order number format", http.StatusUnprocessableEntity)
+	default:
+		http.Error(res, "Internal server error", http.StatusInternalServerError)
+	}
+}
+
+func (h OrderHandler) GetOrders(res http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		res.WriteHeader(http.StatusMethodNotAllowed)
+	}
+	userID, ok := middleware.UserIDFromContext(req.Context())
+	if !ok {
+		http.Error(res, "Unauthorized", http.StatusUnauthorized)
+
+		return
+	}
+	response, err := h.OrderUseCase.FindAllOrders(req.Context(), userID)
+	switch {
+	case err == nil:
+		res.Header().Set("Content-Type", "application/json")
+		res.WriteHeader(http.StatusOK)
+		res.Write(response)
+	case errors.Is(err, errorz.ErrUserHasNoOrders):
+		http.Error(res, "No data to response", http.StatusNoContent)
 	default:
 		http.Error(res, "Internal server error", http.StatusInternalServerError)
 	}

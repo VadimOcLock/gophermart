@@ -69,6 +69,7 @@ func New(pgClient *pgxpool.Pool, cfg config.WebServer) *http.Server {
 	r.Route("/api/user", func(r chi.Router) {
 		r.Use(middleware.JWTAuthMiddleware(cfg.JWTConfig.SecretKey))
 		r.Post("/orders", orderHandler.UploadOrder)
+		r.Get("/orders", orderHandler.GetOrders)
 	})
 
 	return &http.Server{

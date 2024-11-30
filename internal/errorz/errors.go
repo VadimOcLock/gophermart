@@ -10,6 +10,7 @@ var (
 	ErrOrderAlreadyUploadedByUser        = errors.New("order already uploaded by user")
 	ErrOrderAlreadyUploadedByAnotherUser = errors.New("order already uploaded by another user")
 	ErrInvalidOrderNumberFormat          = errors.New("invalid order number format")
+	ErrUserHasNoOrders                   = errors.New("user has no orders")
 )
 
 const (

@@ -2,7 +2,7 @@ package orderusecase
 
 import (
 	"context"
-
+	"encoding/json"
 	"github.com/VadimOcLock/gophermart/internal/errorz"
 	"github.com/VadimOcLock/gophermart/internal/service/orderservice"
 )
@@ -52,4 +52,20 @@ func IsValidOrderNumber(orderNumber string) bool {
 	}
 
 	return sum%10 == 0
+}
+
+func (uc OrderUseCase) FindAllOrders(ctx context.Context, userID uint64) ([]byte, error) {
+	orders, err := uc.OrderService.FindAllOrders(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	if len(orders) == 0 {
+		return nil, errorz.ErrUserHasNoOrders
+	}
+	res, err := json.Marshal(orders)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
