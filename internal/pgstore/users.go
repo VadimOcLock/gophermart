@@ -2,6 +2,7 @@ package pgstore
 
 import (
 	"context"
+
 	"github.com/VadimOcLock/gophermart/internal/entity"
 
 	"github.com/VadimOcLock/gophermart/internal/service/authservice"

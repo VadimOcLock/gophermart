@@ -2,8 +2,9 @@ package authusecase
 
 import (
 	"context"
-	"github.com/VadimOcLock/gophermart/internal/entity"
 	"time"
+
+	"github.com/VadimOcLock/gophermart/internal/entity"
 )
 
 type AuthService interface {

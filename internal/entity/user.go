@@ -1,9 +1,10 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/VadimOcLock/gophermart/internal/errorz"
 	"github.com/VadimOcLock/gophermart/pkg/validation"
-	"time"
 )
 
 type UserDTO struct {

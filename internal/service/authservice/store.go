@@ -2,8 +2,9 @@ package authservice
 
 import (
 	"context"
-	"github.com/VadimOcLock/gophermart/internal/entity"
 	"time"
+
+	"github.com/VadimOcLock/gophermart/internal/entity"
 )
 
 type UserStore interface {

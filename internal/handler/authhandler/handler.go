@@ -22,6 +22,18 @@ func New(authUseCase AuthUseCase) AuthHandler {
 	}
 }
 
+// Register godoc
+// @Summary		Регистрация нового пользователя
+// @Description	Регистрация пользователя по логину и паролю. Логины должны быть уникальными. После успешной регистрации происходит автоматическая аутентификация.
+// @Tags			auth
+// @Accept			json
+// @Produce		json
+// @Param			user	body		entity.UserDTO	true	"Данные пользователя для регистрации"
+// @Success		200		{string}	string			"Пользователь успешно зарегистрирован и аутентифицирован."
+// @Failure		400		{string}	string			"Неверный формат запроса."
+// @Failure		409		{string}	string			"Логин уже занят."
+// @Failure		500		{string}	string			"Внутренняя ошибка сервера."
+// @Router			/api/user/register [post]
 func (h AuthHandler) Register(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, errorz.ErrMsgOnlyPOSTMethodAccept, http.StatusMethodNotAllowed)
@@ -58,6 +70,18 @@ func (h AuthHandler) Register(res http.ResponseWriter, req *http.Request) {
 	res.Write([]byte("User successfully registered and authenticated."))
 }
 
+// Login godoc
+// @Summary		Аутентификация пользователя
+// @Description	Аутентификация пользователя по логину и паролю.
+// @Tags			auth
+// @Accept			json
+// @Produce		json
+// @Param			user	body		entity.UserDTO	true	"Данные пользователя для входа"
+// @Success		200		{string}	string			"Пользователь успешно аутентифицирован."
+// @Failure		400		{string}	string			"Неверный формат запроса."
+// @Failure		401		{string}	string			"Неверная пара логин/пароль."
+// @Failure		500		{string}	string			"Внутренняя ошибка сервера."
+// @Router			/api/user/login [post]
 func (h AuthHandler) Login(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, errorz.ErrMsgOnlyPOSTMethodAccept, http.StatusMethodNotAllowed)

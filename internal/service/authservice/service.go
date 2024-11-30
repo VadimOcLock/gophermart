@@ -3,10 +3,11 @@ package authservice
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/VadimOcLock/gophermart/internal/entity"
 	"github.com/VadimOcLock/gophermart/internal/errorz"
 	"github.com/jackc/pgx/v5"
-	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )

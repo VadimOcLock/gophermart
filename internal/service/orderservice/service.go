@@ -3,6 +3,7 @@ package orderservice
 import (
 	"context"
 	"errors"
+
 	"github.com/VadimOcLock/gophermart/cmd/external"
 	"github.com/VadimOcLock/gophermart/internal/entity"
 	"github.com/VadimOcLock/gophermart/internal/errorz"

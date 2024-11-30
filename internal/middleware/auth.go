@@ -2,10 +2,11 @@ package middleware
 
 import (
 	"context"
-	"github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 const UserIDKey = "user_id"

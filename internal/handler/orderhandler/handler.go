@@ -2,12 +2,13 @@ package orderhandler
 
 import (
 	"errors"
-	"github.com/VadimOcLock/gophermart/internal/errorz"
-	"github.com/VadimOcLock/gophermart/internal/middleware"
-	"github.com/VadimOcLock/gophermart/internal/usecase/orderusecase"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/VadimOcLock/gophermart/internal/errorz"
+	"github.com/VadimOcLock/gophermart/internal/middleware"
+	"github.com/VadimOcLock/gophermart/internal/usecase/orderusecase"
 )
 
 type OrderHandler struct {
