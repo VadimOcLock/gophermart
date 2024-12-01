@@ -3,6 +3,7 @@ package balancehandler
 import (
 	"encoding/json"
 	"errors"
+	"github.com/VadimOcLock/gophermart/internal/entity"
 	"github.com/VadimOcLock/gophermart/internal/errorz"
 	"github.com/VadimOcLock/gophermart/internal/middleware"
 	"github.com/VadimOcLock/gophermart/internal/usecase/balanceusecase"
@@ -50,32 +51,36 @@ func (h BalanceHandler) GetBalance(res http.ResponseWriter, req *http.Request) {
 	res.Write(response)
 }
 
-type WithdrawBalanceRequest struct {
-	OrderNumber string  `json:"order"`
-	Sum         float64 `json:"sum"`
-}
-
 func (h BalanceHandler) WithdrawBalance(res http.ResponseWriter, req *http.Request) {
 	if http.MethodPost != req.Method {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 
 		return
 	}
-	//userID, ok := middleware.UserIDFromContext(req.Context())
-	//if !ok {
-	//	http.Error(res, "Unauthorized", http.StatusUnauthorized)
-	//
-	//	return
-	//}
-	//var dto WithdrawBalanceRequest
-	//err := json.NewDecoder(req.Body).Decode(&dto)
-	//if err != nil {
-	//	http.Error(res, errorz.ErrMsgInvalidRequestFormat, http.StatusBadRequest)
-	//
-	//	return
-	//}
+	userID, ok := middleware.UserIDFromContext(req.Context())
+	if !ok {
+		http.Error(res, errorz.ErrUnauthorized, http.StatusUnauthorized)
 
-	//h.BalanceUseCase.WithdrawBalance(req.Context(), dto.Sum)
+		return
+	}
+	var dto entity.Withdraw
+	err := json.NewDecoder(req.Body).Decode(&dto)
+	if err != nil {
+		http.Error(res, errorz.ErrMsgInvalidRequestFormat, http.StatusBadRequest)
+
+		return
+	}
+	err = h.BalanceUseCase.Withdrawal(req.Context(), userID, dto.Sum, dto.OrderNumber)
+	switch {
+	case err == nil:
+		res.WriteHeader(http.StatusOK)
+	case errors.Is(err, errorz.ErrInvalidOrderNumber):
+		http.Error(res, err.Error(), http.StatusUnprocessableEntity)
+	case errors.Is(err, errorz.ErrNotEnoughFundsOnBalance):
+		http.Error(res, err.Error(), http.StatusPaymentRequired)
+	default:
+		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
+	}
 }
 
 func (h BalanceHandler) GetWithdrawals(res http.ResponseWriter, req *http.Request) {
@@ -86,7 +91,7 @@ func (h BalanceHandler) GetWithdrawals(res http.ResponseWriter, req *http.Reques
 	}
 	userID, ok := middleware.UserIDFromContext(req.Context())
 	if !ok {
-		http.Error(res, "Unauthorized", http.StatusUnauthorized)
+		http.Error(res, errorz.ErrUnauthorized, http.StatusUnauthorized)
 
 		return
 	}

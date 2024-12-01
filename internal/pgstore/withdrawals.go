@@ -34,3 +34,17 @@ func (q *Queries) FindAllWithdrawalsByUserID(ctx context.Context, userID uint64)
 
 	return ws, nil
 }
+
+const withdrawal = `
+insert into withdrawals(user_id, order_number, sum)
+values ($1, $2, $3)
+returning id;
+`
+
+func (s *PgStore) Withdrawal(ctx context.Context, userID uint64, orderNumber string, sum float64) (uint64, error) {
+	row := s.db.QueryRow(ctx, withdrawal, userID, orderNumber, sum)
+	var id uint64
+	err := row.Scan(&id)
+
+	return id, err
+}

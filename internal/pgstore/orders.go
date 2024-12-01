@@ -105,3 +105,19 @@ func (q *Queries) FindAllOrders(ctx context.Context, userID uint64) ([]entity.Or
 
 	return orders, nil
 }
+
+const orderNumberExists = `
+select case when count(1) > 0 then true else false end as exists
+from orders
+where true
+  and user_id = $1
+  and order_number = $2;
+`
+
+func (q *Queries) OrderNumberExists(ctx context.Context, userID uint64, orderNumber string) (bool, error) {
+	row := q.db.QueryRow(ctx, orderNumberExists, userID, orderNumber)
+	var exists bool
+	err := row.Scan(&exists)
+
+	return exists, err
+}

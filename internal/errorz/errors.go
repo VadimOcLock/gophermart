@@ -12,6 +12,8 @@ var (
 	ErrInvalidOrderNumberFormat          = errors.New("invalid order number format")
 	ErrUserHasNoOrders                   = errors.New("user has no orders")
 	ErrUserHasNoWithdrawals              = errors.New("user has no withdrawals")
+	ErrInvalidOrderNumber                = errors.New(`invalid order number`)
+	ErrNotEnoughFundsOnBalance           = errors.New("there are not enough funds on the balance")
 )
 
 const (

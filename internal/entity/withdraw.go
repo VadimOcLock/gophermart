@@ -10,7 +10,7 @@ type Withdraw struct {
 	UserID      uint64    `json:"-"`
 	OrderNumber string    `json:"order"`
 	Sum         float64   `json:"sum"`
-	ProcessedAt time.Time `json:"processed_at"`
+	ProcessedAt time.Time `json:"processed_at,omitempty"`
 }
 
 func (o Withdraw) MarshalJSON() ([]byte, error) {

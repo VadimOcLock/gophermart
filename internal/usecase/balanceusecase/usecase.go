@@ -35,3 +35,19 @@ func (uc BalanceUseCase) FindWithdrawals(ctx context.Context, userID uint64) ([]
 
 	return json.Marshal(ws)
 }
+
+func (uc BalanceUseCase) Withdrawal(ctx context.Context, userID uint64, sum float64, orderNumber string) error {
+	orderExists, err := uc.BalanceService.OrderNumberExists(ctx, userID, orderNumber)
+	if err != nil {
+		return err
+	}
+	if !orderExists {
+		return errorz.ErrInvalidOrderNumber
+	}
+	_, err = uc.BalanceService.Withdrawal(ctx, userID, orderNumber, sum)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
