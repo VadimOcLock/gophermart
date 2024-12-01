@@ -3,6 +3,7 @@ package orderusecase
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/VadimOcLock/gophermart/internal/errorz"
 	"github.com/VadimOcLock/gophermart/internal/service/orderservice"
 )

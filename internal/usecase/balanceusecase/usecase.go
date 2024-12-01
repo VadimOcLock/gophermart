@@ -3,6 +3,7 @@ package balanceusecase
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/VadimOcLock/gophermart/internal/entity"
 	"github.com/VadimOcLock/gophermart/internal/errorz"
 	"github.com/VadimOcLock/gophermart/internal/service/balanceservice"

@@ -1,13 +1,14 @@
 package server
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/VadimOcLock/gophermart/internal/accrualclient"
 	"github.com/VadimOcLock/gophermart/internal/handler/balancehandler"
 	"github.com/VadimOcLock/gophermart/internal/middleware"
 	"github.com/VadimOcLock/gophermart/internal/service/balanceservice"
 	"github.com/VadimOcLock/gophermart/internal/usecase/balanceusecase"
-	"net/http"
-	"time"
 
 	"github.com/VadimOcLock/gophermart/internal/handler/orderhandler"
 	"github.com/VadimOcLock/gophermart/internal/service/orderservice"

@@ -3,6 +3,7 @@ package pgstore
 import (
 	"context"
 	"errors"
+
 	"github.com/VadimOcLock/gophermart/internal/entity"
 	"github.com/jackc/pgx/v5"
 )

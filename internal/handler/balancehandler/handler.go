@@ -3,11 +3,12 @@ package balancehandler
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
+
 	"github.com/VadimOcLock/gophermart/internal/entity"
 	"github.com/VadimOcLock/gophermart/internal/errorz"
 	"github.com/VadimOcLock/gophermart/internal/middleware"
 	"github.com/VadimOcLock/gophermart/internal/usecase/balanceusecase"
-	"net/http"
 )
 
 type BalanceHandler struct {
