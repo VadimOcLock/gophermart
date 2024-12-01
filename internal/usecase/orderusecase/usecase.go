@@ -62,10 +62,6 @@ func (uc OrderUseCase) FindAllOrders(ctx context.Context, userID uint64) ([]byte
 	if len(orders) == 0 {
 		return nil, errorz.ErrUserHasNoOrders
 	}
-	res, err := json.Marshal(orders)
-	if err != nil {
-		return nil, err
-	}
 
-	return res, nil
+	return json.Marshal(orders)
 }

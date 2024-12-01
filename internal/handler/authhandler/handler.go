@@ -60,7 +60,7 @@ func (h AuthHandler) Register(res http.ResponseWriter, req *http.Request) {
 
 		return
 	case err != nil:
-		http.Error(res, "internal server error", http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
 
 		return
 	}
@@ -106,7 +106,7 @@ func (h AuthHandler) Login(res http.ResponseWriter, req *http.Request) {
 
 		return
 	case err != nil:
-		http.Error(res, "internal server error", http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
 
 		return
 	}

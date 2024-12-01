@@ -45,13 +45,13 @@ func (h OrderHandler) UploadOrder(res http.ResponseWriter, req *http.Request) {
 	}
 	userID, ok := middleware.UserIDFromContext(req.Context())
 	if !ok {
-		http.Error(res, "Unauthorized", http.StatusUnauthorized)
+		http.Error(res, errorz.ErrUnauthorized, http.StatusUnauthorized)
 
 		return
 	}
 	body, err := io.ReadAll(req.Body)
 	if err != nil || len(body) == 0 {
-		http.Error(res, "Invalid request format", http.StatusBadRequest)
+		http.Error(res, errorz.ErrMsgInvalidRequestFormat, http.StatusBadRequest)
 
 		return
 	}
@@ -62,13 +62,13 @@ func (h OrderHandler) UploadOrder(res http.ResponseWriter, req *http.Request) {
 	case err == nil:
 		res.WriteHeader(http.StatusAccepted)
 	case errors.Is(err, errorz.ErrOrderAlreadyUploadedByUser):
-		http.Error(res, "User already uploaded by user", http.StatusOK)
+		http.Error(res, err.Error(), http.StatusOK)
 	case errors.Is(err, errorz.ErrOrderAlreadyUploadedByAnotherUser):
-		http.Error(res, "User already uploaded by another user", http.StatusConflict)
+		http.Error(res, err.Error(), http.StatusConflict)
 	case errors.Is(err, errorz.ErrInvalidOrderNumberFormat):
-		http.Error(res, "Invalid order number format", http.StatusUnprocessableEntity)
+		http.Error(res, err.Error(), http.StatusUnprocessableEntity)
 	default:
-		http.Error(res, "Internal server error", http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
 	}
 }
 
@@ -89,7 +89,7 @@ func (h OrderHandler) GetOrders(res http.ResponseWriter, req *http.Request) {
 	}
 	userID, ok := middleware.UserIDFromContext(req.Context())
 	if !ok {
-		http.Error(res, "Unauthorized", http.StatusUnauthorized)
+		http.Error(res, errorz.ErrUnauthorized, http.StatusUnauthorized)
 
 		return
 	}
@@ -100,8 +100,8 @@ func (h OrderHandler) GetOrders(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusOK)
 		res.Write(response)
 	case errors.Is(err, errorz.ErrUserHasNoOrders):
-		http.Error(res, "No data to response", http.StatusNoContent)
+		http.Error(res, errorz.ErrNoDataToResponse, http.StatusNoContent)
 	default:
-		http.Error(res, "Internal server error", http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
 	}
 }

@@ -7,4 +7,5 @@ import (
 
 type BalanceStore interface {
 	FindBalanceByUserID(ctx context.Context, userID uint64) (entity.Balance, error)
+	FindAllWithdrawalsByUserID(ctx context.Context, userID uint64) ([]entity.Withdraw, error)
 }

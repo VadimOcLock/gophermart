@@ -7,4 +7,5 @@ import (
 
 type BalanceUseCase interface {
 	FindBalance(ctx context.Context, userID uint64) (entity.Balance, error)
+	FindWithdrawals(ctx context.Context, userID uint64) ([]byte, error)
 }

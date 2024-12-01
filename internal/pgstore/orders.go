@@ -81,7 +81,7 @@ const findAllOrders = `
 select id, user_id, order_number, status, accrual, uploaded_at
 from orders
 where user_id = $1
-order by uploaded_at;
+order by uploaded_at desc;
 `
 
 func (q *Queries) FindAllOrders(ctx context.Context, userID uint64) ([]entity.Order, error) {

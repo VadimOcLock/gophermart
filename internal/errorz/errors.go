@@ -11,9 +11,13 @@ var (
 	ErrOrderAlreadyUploadedByAnotherUser = errors.New("order already uploaded by another user")
 	ErrInvalidOrderNumberFormat          = errors.New("invalid order number format")
 	ErrUserHasNoOrders                   = errors.New("user has no orders")
+	ErrUserHasNoWithdrawals              = errors.New("user has no withdrawals")
 )
 
 const (
-	ErrMsgOnlyPOSTMethodAccept = "only POST method accept"
-	ErrMsgInvalidRequestFormat = "invalid request format"
+	ErrMsgOnlyPOSTMethodAccept = "Only POST method accept"
+	ErrMsgInvalidRequestFormat = "Invalid request format"
+	ErrInternalServerError     = "Internal server error"
+	ErrUnauthorized            = "Unauthorized"
+	ErrNoDataToResponse        = "No data to response"
 )

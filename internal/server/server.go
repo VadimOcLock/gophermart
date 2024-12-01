@@ -78,6 +78,8 @@ func New(pgClient *pgxpool.Pool, cfg config.WebServer) *http.Server {
 		r.Get("/orders", orderHandler.GetOrders)
 
 		r.Get("/balance", balanceHandler.GetBalance)
+		r.Post("/balance/withdraw", balanceHandler.WithdrawBalance)
+		r.Get("/withdrawals", balanceHandler.GetWithdrawals)
 	})
 
 	return &http.Server{
