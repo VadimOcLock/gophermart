@@ -3,13 +3,13 @@ package server
 import (
 	"github.com/VadimOcLock/gophermart/internal/accrualclient"
 	"github.com/VadimOcLock/gophermart/internal/handler/balancehandler"
+	"github.com/VadimOcLock/gophermart/internal/middleware"
 	"github.com/VadimOcLock/gophermart/internal/service/balanceservice"
 	"github.com/VadimOcLock/gophermart/internal/usecase/balanceusecase"
 	"net/http"
 	"time"
 
 	"github.com/VadimOcLock/gophermart/internal/handler/orderhandler"
-	"github.com/VadimOcLock/gophermart/internal/middleware"
 	"github.com/VadimOcLock/gophermart/internal/service/orderservice"
 	"github.com/VadimOcLock/gophermart/internal/usecase/orderusecase"
 
@@ -72,14 +72,16 @@ func New(pgClient *pgxpool.Pool, cfg config.WebServer) *http.Server {
 	r.Post("/api/user/login", authHandler.Login)
 
 	// Protected.
-	r.Route("/api/user", func(r chi.Router) {
+	r.Route("/api", func(r chi.Router) {
 		r.Use(middleware.JWTAuthMiddleware(cfg.JWTConfig.SecretKey))
-		r.Post("/orders", orderHandler.UploadOrder)
-		r.Get("/orders", orderHandler.GetOrders)
+		r.Route("/user", func(r chi.Router) {
+			r.Post("/orders", orderHandler.UploadOrder)
+			r.Get("/orders", orderHandler.GetOrders)
 
-		r.Get("/balance", balanceHandler.GetBalance)
-		r.Post("/balance/withdraw", balanceHandler.WithdrawBalance)
-		r.Get("/withdrawals", balanceHandler.GetWithdrawals)
+			r.Get("/balance", balanceHandler.GetBalance)
+			r.Post("/balance/withdraw", balanceHandler.WithdrawBalance)
+			r.Get("/withdrawals", balanceHandler.GetWithdrawals)
+		})
 	})
 
 	return &http.Server{
