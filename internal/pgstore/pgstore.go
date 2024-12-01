@@ -3,6 +3,7 @@ package pgstore
 import (
 	"context"
 	"fmt"
+	"github.com/VadimOcLock/gophermart/internal/service/balanceservice"
 
 	"github.com/VadimOcLock/gophermart/internal/service/orderservice"
 
@@ -27,6 +28,7 @@ func NewPgStore(db *pgxpool.Pool) *PgStore {
 type Store interface {
 	authservice.UserStore
 	orderservice.OrderStore
+	balanceservice.BalanceStore
 }
 
 var _ Store = (*PgStore)(nil)

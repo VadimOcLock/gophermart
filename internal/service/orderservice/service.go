@@ -3,7 +3,7 @@ package orderservice
 import (
 	"context"
 	"errors"
-	"github.com/VadimOcLock/gophermart/cmd/external"
+	"github.com/VadimOcLock/gophermart/internal/accrualclient"
 	"github.com/VadimOcLock/gophermart/internal/entity"
 	"github.com/VadimOcLock/gophermart/internal/errorz"
 	"github.com/jackc/pgx/v5"
@@ -12,10 +12,10 @@ import (
 
 type OrderService struct {
 	OrderStore    OrderStore
-	AccrualClient *external.AccrualClient
+	AccrualClient *accrualclient.AccrualClient
 }
 
-func NewOrderService(orderStore OrderStore, accrualClient *external.AccrualClient) *OrderService {
+func NewOrderService(orderStore OrderStore, accrualClient *accrualclient.AccrualClient) *OrderService {
 	return &OrderService{
 		OrderStore:    orderStore,
 		AccrualClient: accrualClient,
@@ -54,15 +54,15 @@ func (s OrderService) processOrder(orderNumber string) {
 		if _, err = s.OrderStore.UpdateOrderStatus(ctx, orderNumber, entity.OrderStatusInvalid); err != nil {
 			log.Error().Err(err).Msg("failed to update order status with invalid status")
 		}
-	case resp.Status == string(external.OrderStatusProcessing):
+	case resp.Status == string(accrualclient.OrderStatusProcessing):
 		if _, err = s.OrderStore.UpdateOrderStatus(ctx, orderNumber, entity.OrderStatusProcessing); err != nil {
 			log.Error().Err(err).Msg("failed to update order status with processing status")
 		}
-	case resp.Status == string(external.OrderStatusInvalid):
+	case resp.Status == string(accrualclient.OrderStatusInvalid):
 		if _, err = s.OrderStore.UpdateOrderStatus(ctx, orderNumber, entity.OrderStatusInvalid); err != nil {
 			log.Error().Err(err).Msg("failed to update order status with invalid status")
 		}
-	case resp.Status == string(external.OrderStatusProcessed):
+	case resp.Status == string(accrualclient.OrderStatusProcessed):
 		var accrual float64
 		if resp.Accrual != nil {
 			accrual = *resp.Accrual
@@ -70,7 +70,7 @@ func (s OrderService) processOrder(orderNumber string) {
 		if _, err = s.OrderStore.UpdateOrder(ctx, orderNumber, entity.OrderStatusProcessed, accrual); err != nil {
 			log.Error().Err(err).Msg("failed to update order with processed status")
 		}
-	case resp.Status == string(external.OrderStatusRegistered):
+	case resp.Status == string(accrualclient.OrderStatusRegistered):
 		return
 	}
 }

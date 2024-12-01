@@ -1,10 +1,13 @@
 package server
 
 import (
+	"github.com/VadimOcLock/gophermart/internal/accrualclient"
+	"github.com/VadimOcLock/gophermart/internal/handler/balancehandler"
+	"github.com/VadimOcLock/gophermart/internal/service/balanceservice"
+	"github.com/VadimOcLock/gophermart/internal/usecase/balanceusecase"
 	"net/http"
 	"time"
 
-	"github.com/VadimOcLock/gophermart/cmd/external"
 	"github.com/VadimOcLock/gophermart/internal/handler/orderhandler"
 	"github.com/VadimOcLock/gophermart/internal/middleware"
 	"github.com/VadimOcLock/gophermart/internal/service/orderservice"
@@ -36,21 +39,24 @@ import (
 // @BasePath		/
 func New(pgClient *pgxpool.Pool, cfg config.WebServer) *http.Server {
 	// Accrual client.
-	accrualClient := external.NewAccrualClient(cfg.AccrualConfig.SrvAddr)
+	accrualClient := accrualclient.NewAccrualClient(cfg.AccrualConfig.SrvAddr)
 	// Store.
-	store := pgstore.New(pgClient)
+	store := pgstore.NewPgStore(pgClient)
 	// Services.
 	authService := authservice.NewAuthService(store)
 	orderService := orderservice.NewOrderService(store, accrualClient)
+	balanceService := balanceservice.NewBalanceService(store)
 	// UseCases.
 	authUseCase := authusecase.NewAuthUseCase(authService, authusecase.JWTConfig{
 		SecretKey:     cfg.JWTConfig.SecretKey,
 		TokenDuration: cfg.JWTConfig.TokenExpiration,
 	})
 	orderUseCase := orderusecase.NewOrderUseCase(orderService)
+	balanceUseCase := balanceusecase.NewBalanceUseCase(balanceService)
 	// Handler.
 	authHandler := authhandler.New(authUseCase)
 	orderHandler := orderhandler.New(orderUseCase)
+	balanceHandler := balancehandler.New(balanceUseCase)
 	// Server.
 	r := chi.NewRouter()
 	r.Use(chimiddleware.Logger)
@@ -70,6 +76,8 @@ func New(pgClient *pgxpool.Pool, cfg config.WebServer) *http.Server {
 		r.Use(middleware.JWTAuthMiddleware(cfg.JWTConfig.SecretKey))
 		r.Post("/orders", orderHandler.UploadOrder)
 		r.Get("/orders", orderHandler.GetOrders)
+
+		r.Get("/balance", balanceHandler.GetBalance)
 	})
 
 	return &http.Server{
