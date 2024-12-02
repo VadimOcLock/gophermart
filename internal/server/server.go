@@ -6,8 +6,7 @@ import (
 	"github.com/VadimOcLock/gophermart/internal/middleware"
 	"github.com/VadimOcLock/gophermart/internal/service/balanceservice"
 	"github.com/VadimOcLock/gophermart/internal/usecase/balanceusecase"
-	"net/http"
-	"time"
+	"github.com/VadimOcLock/gophermart/pkg/httpmix"
 
 	"github.com/VadimOcLock/gophermart/internal/handler/orderhandler"
 	"github.com/VadimOcLock/gophermart/internal/service/orderservice"
@@ -37,7 +36,7 @@ import (
 // @license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 // @host			localhost:3000
 // @BasePath		/
-func New(pgClient *pgxpool.Pool, cfg config.WebServer) *http.Server {
+func New(pgClient *pgxpool.Pool, cfg config.WebServer) *chi.Mux {
 	// Accrual client.
 	accrualClient := accrualclient.NewAccrualClient(cfg.AccrualConfig.SrvAddr)
 	// Store.
@@ -84,9 +83,8 @@ func New(pgClient *pgxpool.Pool, cfg config.WebServer) *http.Server {
 		})
 	})
 
-	return &http.Server{
-		Addr:              cfg.WebServerConfig.SrvAddr,
-		Handler:           r,
-		ReadHeaderTimeout: time.Second,
-	}
+	mux := httpmix.NewDefaultMux()
+	mux.Mount("/", r)
+
+	return mux
 }

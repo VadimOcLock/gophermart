@@ -14,12 +14,14 @@ var (
 	ErrUserHasNoWithdrawals              = errors.New("user has no withdrawals")
 	ErrInvalidOrderNumber                = errors.New(`invalid order number`)
 	ErrNotEnoughFundsOnBalance           = errors.New("there are not enough funds on the balance")
+	ErrUnauthorized                      = errors.New(`unauthorized`)
+	ErrExpiredToken                      = errors.New(`expired token`)
 )
 
 const (
-	ErrMsgOnlyPOSTMethodAccept = "Only POST method accept"
-	ErrMsgInvalidRequestFormat = "Invalid request format"
-	ErrInternalServerError     = "Internal server error"
-	ErrUnauthorized            = "Unauthorized"
-	ErrNoDataToResponse        = "No data to response"
+	ErrMsgOnlyPOSTMethodAcceptMsg = "Only POST method accept"
+	ErrMsgInvalidRequestFormatMsg = "Invalid request format"
+	ErrInternalServerErrorMsg     = "Internal server error"
+	ErrUnauthorizedMsg            = "Unauthorized"
+	ErrNoDataToResponseMsg        = "No data to response"
 )

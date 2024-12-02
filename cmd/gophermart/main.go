@@ -6,6 +6,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/VadimOcLock/gophermart/pkg/httpmix"
+	"github.com/hellofresh/health-go/v5"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"github.com/VadimOcLock/gophermart/internal/server"
 	"github.com/VadimOcLock/gophermart/pkg/lifecycle"
 	"github.com/VadimOcLock/gophermart/pkg/migrations"
@@ -16,9 +20,16 @@ import (
 	"github.com/VadimOcLock/gophermart/internal/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+
+	pgcheck "github.com/hellofresh/health-go/v5/checks/pgx5"
 )
 
-const migrationsFolderPath = "file://schema/migrations"
+var version = "undefined"
+
+const (
+	migrationsFolderPath = "file://schema/migrations"
+	appName              = "gophermart"
+)
 
 func main() {
 	ctx := context.Background()
@@ -56,11 +67,30 @@ func main() {
 	log.Info().Msg("migrations applied successfully")
 
 	// Server.
-	srv := server.New(pgClient, cfg)
+	mux := server.New(pgClient, cfg)
 
 	// Run.
 	tasks := taskgroup.New()
 	tasks.Add(taskgroup.SignalHandler(ctx, os.Interrupt, syscall.SIGINT, syscall.SIGTERM))
-	tasks.Add(lifecycle.HTTPServer(srv))
+	tasks.Add(lifecycle.HTTPServer(
+		httpmix.NewMux(httpmix.Cors),
+		cfg.HealthConfig.Port,
+		lifecycle.MuxHandler{Handler: lifecycle.HTTPHealthHandler(
+			appName, version, health.Config{
+				Name:      "postgres-check",
+				Timeout:   time.Second,
+				SkipOnErr: true,
+				Check: pgcheck.New(pgcheck.Config{
+					DSN: cfg.DatabaseConfig.DSN,
+				}),
+			},
+		), Name: "health", Path: "/health"}),
+	)
+	tasks.Add(lifecycle.HTTPServer(
+		httpmix.NewMux(httpmix.Cors),
+		cfg.PrometheusConfig.Port,
+		lifecycle.MuxHandler{Handler: promhttp.Handler(), Name: "prometheus", Path: "/metrics"}),
+	)
+	tasks.Add(lifecycle.HTTPServer(mux, cfg.WebServerConfig.Port()))
 	_ = tasks.Run()
 }
