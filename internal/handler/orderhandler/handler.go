@@ -29,8 +29,8 @@ func New(orderUseCase OrderUseCase) OrderHandler {
 // @Accept text/plain
 // @Produce json
 // @Param order_number body string true "Номер заказа"
-// @Success 200 {string} string "Номер заказа уже был загружен этим пользователем."
-// @Success 202 {string} string "Новый номер заказа принят в обработку."
+// @Success 200 {string} string "Новый номер заказа принят в обработку."
+// @Success 202 {string} string "Номер заказа уже был загружен этим пользователем."
 // @Failure 400 {string} string "Неверный формат запроса."
 // @Failure 401 {string} string "Пользователь не аутентифицирован."
 // @Failure 409 {string} string "Номер заказа уже был загружен другим пользователем."
@@ -45,13 +45,13 @@ func (h OrderHandler) UploadOrder(res http.ResponseWriter, req *http.Request) {
 	}
 	userID, ok := middleware.UserIDFromContext(req.Context())
 	if !ok {
-		http.Error(res, errorz.ErrUnauthorized, http.StatusUnauthorized)
+		http.Error(res, errorz.ErrUnauthorizedMsg, http.StatusUnauthorized)
 
 		return
 	}
 	body, err := io.ReadAll(req.Body)
 	if err != nil || len(body) == 0 {
-		http.Error(res, errorz.ErrMsgInvalidRequestFormat, http.StatusBadRequest)
+		http.Error(res, errorz.ErrMsgInvalidRequestFormatMsg, http.StatusBadRequest)
 
 		return
 	}
@@ -68,7 +68,7 @@ func (h OrderHandler) UploadOrder(res http.ResponseWriter, req *http.Request) {
 	case errors.Is(err, errorz.ErrInvalidOrderNumberFormat):
 		http.Error(res, err.Error(), http.StatusUnprocessableEntity)
 	default:
-		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerErrorMsg, http.StatusInternalServerError)
 	}
 }
 
@@ -89,7 +89,7 @@ func (h OrderHandler) GetOrders(res http.ResponseWriter, req *http.Request) {
 	}
 	userID, ok := middleware.UserIDFromContext(req.Context())
 	if !ok {
-		http.Error(res, errorz.ErrUnauthorized, http.StatusUnauthorized)
+		http.Error(res, errorz.ErrUnauthorizedMsg, http.StatusUnauthorized)
 
 		return
 	}
@@ -100,8 +100,8 @@ func (h OrderHandler) GetOrders(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusOK)
 		res.Write(response)
 	case errors.Is(err, errorz.ErrUserHasNoOrders):
-		http.Error(res, errorz.ErrNoDataToResponse, http.StatusNoContent)
+		http.Error(res, errorz.ErrNoDataToResponseMsg, http.StatusNoContent)
 	default:
-		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerErrorMsg, http.StatusInternalServerError)
 	}
 }

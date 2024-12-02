@@ -31,19 +31,19 @@ func (h BalanceHandler) GetBalance(res http.ResponseWriter, req *http.Request) {
 	}
 	userID, ok := middleware.UserIDFromContext(req.Context())
 	if !ok {
-		http.Error(res, errorz.ErrUnauthorized, http.StatusUnauthorized)
+		http.Error(res, errorz.ErrUnauthorizedMsg, http.StatusUnauthorized)
 
 		return
 	}
 	balance, err := h.BalanceUseCase.FindBalance(req.Context(), userID)
 	if err != nil {
-		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerErrorMsg, http.StatusInternalServerError)
 
 		return
 	}
 	response, err := json.Marshal(balance)
 	if err != nil {
-		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerErrorMsg, http.StatusInternalServerError)
 
 		return
 	}
@@ -60,14 +60,14 @@ func (h BalanceHandler) WithdrawBalance(res http.ResponseWriter, req *http.Reque
 	}
 	userID, ok := middleware.UserIDFromContext(req.Context())
 	if !ok {
-		http.Error(res, errorz.ErrUnauthorized, http.StatusUnauthorized)
+		http.Error(res, errorz.ErrUnauthorizedMsg, http.StatusUnauthorized)
 
 		return
 	}
 	var dto entity.Withdraw
 	err := json.NewDecoder(req.Body).Decode(&dto)
 	if err != nil {
-		http.Error(res, errorz.ErrMsgInvalidRequestFormat, http.StatusBadRequest)
+		http.Error(res, errorz.ErrMsgInvalidRequestFormatMsg, http.StatusBadRequest)
 
 		return
 	}
@@ -80,7 +80,7 @@ func (h BalanceHandler) WithdrawBalance(res http.ResponseWriter, req *http.Reque
 	case errors.Is(err, errorz.ErrNotEnoughFundsOnBalance):
 		http.Error(res, err.Error(), http.StatusPaymentRequired)
 	default:
-		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerErrorMsg, http.StatusInternalServerError)
 	}
 }
 
@@ -92,13 +92,13 @@ func (h BalanceHandler) GetWithdrawals(res http.ResponseWriter, req *http.Reques
 	}
 	userID, ok := middleware.UserIDFromContext(req.Context())
 	if !ok {
-		http.Error(res, errorz.ErrUnauthorized, http.StatusUnauthorized)
+		http.Error(res, errorz.ErrUnauthorizedMsg, http.StatusUnauthorized)
 
 		return
 	}
 	response, err := h.BalanceUseCase.FindWithdrawals(req.Context(), userID)
 	if err != nil {
-		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerErrorMsg, http.StatusInternalServerError)
 	}
 	switch {
 	case err == nil:
@@ -108,6 +108,6 @@ func (h BalanceHandler) GetWithdrawals(res http.ResponseWriter, req *http.Reques
 	case errors.Is(err, errorz.ErrUserHasNoWithdrawals):
 		http.Error(res, err.Error(), http.StatusNoContent)
 	default:
-		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerErrorMsg, http.StatusInternalServerError)
 	}
 }

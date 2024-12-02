@@ -36,14 +36,14 @@ func New(authUseCase AuthUseCase) AuthHandler {
 // @Router			/api/user/register [post]
 func (h AuthHandler) Register(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
-		http.Error(res, errorz.ErrMsgOnlyPOSTMethodAccept, http.StatusMethodNotAllowed)
+		http.Error(res, errorz.ErrMsgOnlyPOSTMethodAcceptMsg, http.StatusMethodNotAllowed)
 
 		return
 	}
 
 	var dto entity.UserDTO
 	if err := json.NewDecoder(req.Body).Decode(&dto); err != nil {
-		http.Error(res, errorz.ErrMsgInvalidRequestFormat, http.StatusBadRequest)
+		http.Error(res, errorz.ErrMsgInvalidRequestFormatMsg, http.StatusBadRequest)
 
 		return
 	}
@@ -60,10 +60,13 @@ func (h AuthHandler) Register(res http.ResponseWriter, req *http.Request) {
 
 		return
 	case err != nil:
-		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerErrorMsg, http.StatusInternalServerError)
 
 		return
 	}
+
+	cookie := HTTPCookie(token)
+	http.SetCookie(res, cookie)
 
 	res.Header().Set("Authorization", "Bearer "+token)
 	res.WriteHeader(http.StatusOK)
@@ -84,13 +87,13 @@ func (h AuthHandler) Register(res http.ResponseWriter, req *http.Request) {
 // @Router			/api/user/login [post]
 func (h AuthHandler) Login(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
-		http.Error(res, errorz.ErrMsgOnlyPOSTMethodAccept, http.StatusMethodNotAllowed)
+		http.Error(res, errorz.ErrMsgOnlyPOSTMethodAcceptMsg, http.StatusMethodNotAllowed)
 
 		return
 	}
 	var dto entity.UserDTO
 	if err := json.NewDecoder(req.Body).Decode(&dto); err != nil {
-		http.Error(res, errorz.ErrMsgInvalidRequestFormat, http.StatusBadRequest)
+		http.Error(res, errorz.ErrMsgInvalidRequestFormatMsg, http.StatusBadRequest)
 
 		return
 	}
@@ -106,12 +109,26 @@ func (h AuthHandler) Login(res http.ResponseWriter, req *http.Request) {
 
 		return
 	case err != nil:
-		http.Error(res, errorz.ErrInternalServerError, http.StatusInternalServerError)
+		http.Error(res, errorz.ErrInternalServerErrorMsg, http.StatusInternalServerError)
 
 		return
 	}
 
+	cookie := HTTPCookie(token)
+	http.SetCookie(res, cookie)
+
 	res.Header().Set("Authorization", "Bearer "+token)
 	res.WriteHeader(http.StatusOK)
 	res.Write([]byte("User successfully authenticated and logged in."))
+}
+
+func HTTPCookie(token string) *http.Cookie {
+	return &http.Cookie{
+		Name:     "jwt_token",
+		Value:    token,
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+	}
 }
