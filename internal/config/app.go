@@ -1,9 +1,23 @@
 package config
 
-import "time"
+import (
+	"strconv"
+	"strings"
+	"time"
+)
 
 type AppConfig struct {
 	JWTConfig
+	HealthConfig
+	PrometheusConfig
+}
+
+type HealthConfig struct {
+	Port int `env:"HEALTH_PORT" envDefault:"9090"`
+}
+
+type PrometheusConfig struct {
+	Port int `env:"PROMETHEUS_PORT" envDefault:"9091"`
 }
 
 type JWTConfig struct {
@@ -13,6 +27,19 @@ type JWTConfig struct {
 
 type WebServerConfig struct {
 	SrvAddr string `env:"RUN_ADDRESS"`
+}
+
+func (cfg WebServerConfig) Port() int {
+	s := strings.Split(cfg.SrvAddr, ":")
+	if len(s) != 2 {
+		return 0
+	}
+	port, err := strconv.Atoi(s[1])
+	if err != nil {
+		return 0
+	}
+
+	return port
 }
 
 type DatabaseConfig struct {
