@@ -30,8 +30,7 @@ func main() {
 	}
 
 	// Flags.
-	cfg, err = config.ParseFlags(cfg)
-	if err != nil {
+	if err = config.ParseFlags(&cfg); err != nil {
 		log.Fatal().Err(err).Msg("Failed to parse configuration flags.")
 	}
 

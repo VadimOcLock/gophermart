@@ -1,6 +1,6 @@
 module github.com/VadimOcLock/gophermart
 
-go 1.23.1
+go 1.22.3
 
 require (
 	github.com/caarlos0/env/v11 v11.2.2

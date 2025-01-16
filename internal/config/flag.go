@@ -3,6 +3,7 @@ package config
 import (
 	"flag"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"os"
 	"strconv"
 	"strings"
@@ -12,7 +13,7 @@ import (
 
 const (
 	defaultWebSrvAddr     = "localhost:8080"
-	defaultAccrualSrvAddr = "localhost:8080"
+	defaultAccrualSrvAddr = "localhost:8081"
 	defaultDatabaseDSN    = ""
 	defaultSecretKey      = "1234567890"
 )
@@ -41,7 +42,7 @@ func (n *netAddress) Set(value string) error {
 	return nil
 }
 
-func ParseFlags(cfg WebServer) (WebServer, error) {
+func ParseFlags(cfg *WebServer) error {
 	var (
 		flagWebSrvAddr     string
 		flagAccrualSrvAddr string
@@ -58,11 +59,11 @@ func ParseFlags(cfg WebServer) (WebServer, error) {
 
 	var webSrvAddr netAddress
 	if err := webSrvAddr.Set(flagWebSrvAddr); err != nil {
-		return WebServer{}, fmt.Errorf("error parsing server address: %w", err)
+		return fmt.Errorf("error parsing server address: %w", err)
 	}
 	var accrualSrvAddr netAddress
 	if err := accrualSrvAddr.Set(flagAccrualSrvAddr); err != nil {
-		return WebServer{}, fmt.Errorf("error parsing accrual server address: %w", err)
+		return fmt.Errorf("error parsing accrual server address: %w", err)
 	}
 
 	if envVal := os.Getenv("RUN_ADDRESS"); envVal == "" {
@@ -78,5 +79,7 @@ func ParseFlags(cfg WebServer) (WebServer, error) {
 		cfg.AppConfig.SecretKey = flagSecretKey
 	}
 
-	return cfg, nil
+	log.Info().Msgf("%s", cfg)
+
+	return nil
 }
