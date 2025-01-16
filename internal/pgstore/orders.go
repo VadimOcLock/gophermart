@@ -40,10 +40,10 @@ returning id;
 
 func (q *Queries) SaveOrder(ctx context.Context, userID uint64, orderNumber string, status entity.OrderStatus) (uint64, error) {
 	row := q.db.QueryRow(ctx, saveOrder, userID, orderNumber, status)
-	var orderId uint64
-	err := row.Scan(&orderId)
+	var orderID uint64
+	err := row.Scan(&orderID)
 
-	return orderId, err
+	return orderID, err
 }
 
 const updateOrderStatus = `
