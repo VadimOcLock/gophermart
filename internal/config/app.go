@@ -7,7 +7,7 @@ type AppConfig struct {
 }
 
 type JWTConfig struct {
-	SecretKey       string        `env:"SECRET_KEY"`
+	SecretKey       string        `env:"SECRET_KEY" envDefault:"super_secret_key"`
 	TokenExpiration time.Duration `env:"TOKEN_EXPIRATION" envDefault:"24h"`
 }
 
