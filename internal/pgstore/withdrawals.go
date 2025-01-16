@@ -3,6 +3,7 @@ package pgstore
 import (
 	"context"
 	"errors"
+
 	"github.com/VadimOcLock/gophermart/internal/entity"
 	"github.com/jackc/pgx/v5"
 )
@@ -32,7 +33,7 @@ func (q *Queries) FindAllWithdrawalsByUserID(ctx context.Context, userID uint64)
 		ws = append(ws, w)
 	}
 
-	return ws, nil
+	return ws, err
 }
 
 const withdrawal = `

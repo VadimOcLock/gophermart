@@ -9,7 +9,9 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-const UserIDKey = "user_id"
+type contextKey string
+
+const UserIDKey contextKey = "user_id"
 
 func JWTAuthMiddleware(jwtSecretKey string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -57,7 +59,7 @@ func JWTAuthMiddleware(jwtSecretKey string) func(next http.Handler) http.Handler
 					return
 				}
 
-				userID, ok := claims[UserIDKey].(float64)
+				userID, ok := claims[string(UserIDKey)].(float64)
 				if !ok {
 					http.Error(res, "missing user id claim", http.StatusUnauthorized)
 
@@ -74,7 +76,7 @@ func JWTAuthMiddleware(jwtSecretKey string) func(next http.Handler) http.Handler
 }
 
 func UserIDFromContext(ctx context.Context) (uint64, bool) {
-	userID, ok := ctx.Value(UserIDKey).(uint64)
+	userID, ok := ctx.Value(string(UserIDKey)).(uint64)
 
 	return userID, ok
 }

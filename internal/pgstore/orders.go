@@ -3,9 +3,9 @@ package pgstore
 import (
 	"context"
 	"errors"
-	"github.com/jackc/pgx/v5"
 
 	"github.com/VadimOcLock/gophermart/internal/entity"
+	"github.com/jackc/pgx/v5"
 )
 
 const findOrderByOrderNumber = `
@@ -29,7 +29,7 @@ func (q *Queries) FindOrderByOrderNumber(ctx context.Context, orderNumber string
 		return nil, err
 	}
 
-	return &order, nil
+	return &order, err
 }
 
 const saveOrder = `
@@ -103,7 +103,7 @@ func (q *Queries) FindAllOrders(ctx context.Context, userID uint64) ([]entity.Or
 		orders = append(orders, order)
 	}
 
-	return orders, nil
+	return orders, err
 }
 
 const orderNumberExists = `

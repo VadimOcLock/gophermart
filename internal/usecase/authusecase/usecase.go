@@ -35,6 +35,7 @@ func (uc AuthUseCase) Register(ctx context.Context, dto entity.UserDTO) (string,
 	if err := dto.Validate(); err != nil {
 		return "", err
 	}
+
 	available, err := uc.AuthService.IsLoginAvailable(ctx, dto.Login)
 	if err != nil {
 		return "", err
@@ -42,15 +43,18 @@ func (uc AuthUseCase) Register(ctx context.Context, dto entity.UserDTO) (string,
 	if !available {
 		return "", errorz.ErrLoginAlreadyTaken
 	}
+
 	userID, err := uc.AuthService.CreateUser(ctx, dto.Login, dto.Password)
 	if err != nil {
 		return "", err
 	}
+
 	expiresAt := time.Now().Add(uc.JWTConfig.TokenDuration)
 	token, err := jwt.Generate(userID, expiresAt, uc.JWTConfig.SecretKey)
 	if err != nil {
 		return "", err
 	}
+
 	if _, err = uc.AuthService.CreateSession(ctx, userID, token, expiresAt); err != nil {
 		return "", err
 	}

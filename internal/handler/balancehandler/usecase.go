@@ -2,6 +2,7 @@ package balancehandler
 
 import (
 	"context"
+
 	"github.com/VadimOcLock/gophermart/internal/entity"
 )
 

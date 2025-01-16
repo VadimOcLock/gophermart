@@ -55,7 +55,9 @@ func (h OrderHandler) UploadOrder(res http.ResponseWriter, req *http.Request) {
 
 		return
 	}
-	defer req.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(req.Body)
 	orderNumber := strings.TrimSpace(string(body))
 	err = h.OrderUseCase.UploadOrder(req.Context(), userID, orderNumber)
 	switch {
@@ -98,7 +100,7 @@ func (h OrderHandler) GetOrders(res http.ResponseWriter, req *http.Request) {
 	case err == nil:
 		res.Header().Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
-		res.Write(response)
+		_, _ = res.Write(response)
 	case errors.Is(err, errorz.ErrUserHasNoOrders):
 		http.Error(res, errorz.ErrNoDataToResponse, http.StatusNoContent)
 	default:

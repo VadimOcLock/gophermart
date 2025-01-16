@@ -1,0 +1,20 @@
+openapi: 3.0.3
+info:
+  title: Simple API
+  description: A simple API example.
+  version: 1.0.0
+paths:
+  /hello:
+    get:
+      summary: Get a greeting
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Hello, world!

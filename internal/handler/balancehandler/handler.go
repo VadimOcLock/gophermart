@@ -3,11 +3,12 @@ package balancehandler
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
+
 	"github.com/VadimOcLock/gophermart/internal/entity"
 	"github.com/VadimOcLock/gophermart/internal/errorz"
 	"github.com/VadimOcLock/gophermart/internal/middleware"
 	"github.com/VadimOcLock/gophermart/internal/usecase/balanceusecase"
-	"net/http"
 )
 
 type BalanceHandler struct {
@@ -48,7 +49,7 @@ func (h BalanceHandler) GetBalance(res http.ResponseWriter, req *http.Request) {
 	}
 	res.Header().Add("Content-Type", "application/json")
 	res.WriteHeader(http.StatusOK)
-	res.Write(response)
+	_, _ = res.Write(response)
 }
 
 func (h BalanceHandler) WithdrawBalance(res http.ResponseWriter, req *http.Request) {
@@ -103,7 +104,7 @@ func (h BalanceHandler) GetWithdrawals(res http.ResponseWriter, req *http.Reques
 	case err == nil:
 		res.Header().Add("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
-		res.Write(response)
+		_, _ = res.Write(response)
 	case errors.Is(err, errorz.ErrUserHasNoWithdrawals):
 		http.Error(res, err.Error(), http.StatusNoContent)
 	default:

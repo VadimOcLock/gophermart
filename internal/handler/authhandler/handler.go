@@ -3,6 +3,7 @@ package authhandler
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 
 	"github.com/VadimOcLock/gophermart/internal/entity"
@@ -47,7 +48,9 @@ func (h AuthHandler) Register(res http.ResponseWriter, req *http.Request) {
 
 		return
 	}
-	defer req.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(req.Body)
 
 	token, err := h.AuthUseCase.Register(req.Context(), dto)
 	switch {
@@ -67,7 +70,7 @@ func (h AuthHandler) Register(res http.ResponseWriter, req *http.Request) {
 
 	res.Header().Set("Authorization", "Bearer "+token)
 	res.WriteHeader(http.StatusOK)
-	res.Write([]byte("User successfully registered and authenticated."))
+	_, _ = res.Write([]byte("User successfully registered and authenticated."))
 }
 
 // Login godoc
@@ -113,5 +116,5 @@ func (h AuthHandler) Login(res http.ResponseWriter, req *http.Request) {
 
 	res.Header().Set("Authorization", "Bearer "+token)
 	res.WriteHeader(http.StatusOK)
-	res.Write([]byte("User successfully authenticated and logged in."))
+	_, _ = res.Write([]byte("User successfully authenticated and logged in."))
 }

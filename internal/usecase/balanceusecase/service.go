@@ -2,6 +2,7 @@ package balanceusecase
 
 import (
 	"context"
+
 	"github.com/VadimOcLock/gophermart/internal/entity"
 )
 
