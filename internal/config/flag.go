@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/VadimOcLock/gophermart/internal/errorz"
 )
 
@@ -79,8 +77,6 @@ func ParseFlags(cfg *WebServer) error {
 	if envVal := os.Getenv("SECRET_KEY"); envVal == "" {
 		cfg.AppConfig.SecretKey = flagSecretKey
 	}
-
-	log.Info().Msgf("%s", cfg)
 
 	return nil
 }
