@@ -3,10 +3,11 @@ package config
 import (
 	"flag"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/VadimOcLock/gophermart/internal/errorz"
 )

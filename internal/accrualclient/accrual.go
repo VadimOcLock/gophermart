@@ -60,6 +60,7 @@ func (c AccrualClient) GetOrderAccrual(ctx context.Context, orderNumber string) 
 		if r.Result().(*AccrualResponse) != nil {
 			orderStatus = r.Result().(*AccrualResponse).Status
 		}
+
 		return r.StatusCode() == http.StatusNoContent || orderStatus == string(OrderStatusRegistered)
 	}
 	resp, err := c.Client.R().

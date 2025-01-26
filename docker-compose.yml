@@ -10,7 +10,7 @@ services:
       POSTGRES_DB: postgres_db
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "5430:5432"
+      - "6430:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data/pgdata
     deploy:

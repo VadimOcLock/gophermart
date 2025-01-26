@@ -29,7 +29,12 @@ func (s BalanceService) OrderNumberExists(ctx context.Context, userID uint64, or
 	return s.BalanceStore.OrderNumberExists(ctx, userID, orderNumber)
 }
 
-func (s BalanceService) Withdrawal(ctx context.Context, userID uint64, orderNumber string, sum float64) (uint64, error) {
+func (s BalanceService) Withdrawal(
+	ctx context.Context,
+	userID uint64,
+	orderNumber string,
+	sum float64,
+) (uint64, error) {
 	balance, err := s.BalanceStore.FindBalanceByUserID(ctx, userID)
 	if err != nil {
 		return 0, err

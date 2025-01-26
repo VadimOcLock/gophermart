@@ -44,8 +44,9 @@ func (s *PgStore) ExecTx(ctx context.Context, fn func(queries *Queries) error) e
 	if err != nil {
 		rbErr := tx.Rollback(ctx)
 		if rbErr != nil {
-			return fmt.Errorf("transaction error: %v; rollback error: %v", err, rbErr)
+			return fmt.Errorf("transaction error: %w; rollback error: %w", err, rbErr)
 		}
+
 		return err
 	}
 

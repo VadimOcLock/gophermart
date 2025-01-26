@@ -97,7 +97,9 @@ func (h AuthHandler) Login(res http.ResponseWriter, req *http.Request) {
 
 		return
 	}
-	defer req.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(req.Body)
 	token, err := h.AuthUseCase.Login(req.Context(), dto)
 	switch {
 	case errors.Is(err, errorz.ErrLoginPasswordValidate):

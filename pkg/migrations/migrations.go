@@ -16,7 +16,9 @@ func Run(dsn string, migrationsFolderPath string) error {
 	if err != nil {
 		return err
 	}
-	defer sqlDB.Close()
+	defer func(sqlDB *sql.DB) {
+		_ = sqlDB.Close()
+	}(sqlDB)
 
 	driver, err := pgx.WithInstance(sqlDB, &pgx.Config{})
 	if err != nil {

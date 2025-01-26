@@ -45,8 +45,8 @@ func JWTAuthMiddleware(jwtSecretKey string) func(next http.Handler) http.Handler
 			}
 
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-				exp, ok := claims["exp"].(float64)
-				if !ok {
+				exp, expOk := claims["exp"].(float64)
+				if !expOk {
 					http.Error(res, "missing expiry claim", http.StatusUnauthorized)
 
 					return
@@ -59,8 +59,8 @@ func JWTAuthMiddleware(jwtSecretKey string) func(next http.Handler) http.Handler
 					return
 				}
 
-				userID, ok := claims[string(UserIDKey)].(float64)
-				if !ok {
+				userID, expOk := claims[string(UserIDKey)].(float64)
+				if !expOk {
 					http.Error(res, "missing user id claim", http.StatusUnauthorized)
 
 					return

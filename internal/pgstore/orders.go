@@ -38,7 +38,12 @@ values ($1, $2, $3)
 returning id;
 `
 
-func (q *Queries) SaveOrder(ctx context.Context, userID uint64, orderNumber string, status entity.OrderStatus) (uint64, error) {
+func (q *Queries) SaveOrder(
+	ctx context.Context,
+	userID uint64,
+	orderNumber string,
+	status entity.OrderStatus,
+) (uint64, error) {
 	row := q.db.QueryRow(ctx, saveOrder, userID, orderNumber, status)
 	var orderID uint64
 	err := row.Scan(&orderID)
@@ -69,7 +74,12 @@ where order_number = $3
 returning true as updated;
 `
 
-func (q *Queries) UpdateOrder(ctx context.Context, orderNumber string, status entity.OrderStatus, accrual float64) (bool, error) {
+func (q *Queries) UpdateOrder(
+	ctx context.Context,
+	orderNumber string,
+	status entity.OrderStatus,
+	accrual float64,
+) (bool, error) {
 	row := q.db.QueryRow(ctx, updateOrder, status, accrual, orderNumber)
 	var updated bool
 	err := row.Scan(&updated)
